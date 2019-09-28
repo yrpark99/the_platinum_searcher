@@ -6,6 +6,7 @@ const (
 	BINARY
 	ASCII
 	UTF8
+	EUCKR
 	EUCJP
 	SHIFTJIS
 )
@@ -15,6 +16,7 @@ func detectEncoding(bs []byte) int {
 	var (
 		suspiciousBytes = 0
 		likelyUtf8      = 0
+		likelyEuckr     = 0
 		likelyEucjp     = 0
 		likelyShiftjis  = 0
 	)
@@ -53,6 +55,15 @@ func detectEncoding(bs []byte) int {
 				if bs[i] > 127 && bs[i] < 192 && bs[i+1] > 127 && bs[i+1] < 192 {
 					i++
 					likelyUtf8++
+					continue
+				}
+			}
+
+			/* EUC-KR detection */
+			if bs[i] >= 0xB0 && bs[i] < 0xC9 && i+1 < length {
+				i++
+				if bs[i] > 0xA0 && bs[i] < 255 {
+					likelyEuckr++
 					continue
 				}
 			}
@@ -98,13 +109,15 @@ func detectEncoding(bs []byte) int {
 
 	// fmt.Printf("Detected points[utf8/eucjp/shiftjis] is %d/%d/%d.\n", likelyUtf8, likelyEucjp, likelyShiftjis)
 
-	if likelyUtf8 == 0 && likelyEucjp == 0 && likelyShiftjis == 0 {
+	if likelyUtf8 == 0 && likelyEuckr == 0 && likelyEucjp == 0 && likelyShiftjis == 0 {
 		return ASCII
-	} else if likelyUtf8 >= likelyEucjp && likelyUtf8 >= likelyShiftjis {
+	} else if likelyUtf8 >= likelyEuckr && likelyUtf8 >= likelyEucjp && likelyUtf8 >= likelyShiftjis {
 		return UTF8
-	} else if likelyEucjp >= likelyUtf8 && likelyEucjp >= likelyShiftjis {
+	} else if likelyEuckr >= likelyUtf8 && likelyEuckr >= likelyEucjp && likelyEuckr >= likelyShiftjis {
+		return EUCKR
+	} else if likelyEucjp >= likelyUtf8 && likelyEucjp >= likelyEuckr && likelyEucjp >= likelyShiftjis {
 		return EUCJP
-	} else if likelyShiftjis >= likelyUtf8 && likelyShiftjis >= likelyEucjp {
+	} else if likelyShiftjis >= likelyUtf8 && likelyShiftjis >= likelyEuckr && likelyShiftjis >= likelyEucjp {
 		return SHIFTJIS
 	}
 
