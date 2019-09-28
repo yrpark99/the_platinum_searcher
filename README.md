@@ -8,7 +8,7 @@ A code search tool similar to `ack` and `the_silver_searcher(ag)`. It supports m
 - It searches code as fast as `the_silver_searcher(ag)`.
 - It ignores file patterns from your `.gitignore`.
 - It ignores directories with names that start with `.`, eg `.config`. Use `--hidden` option, if you want to search.
-- It searches `UTF-8`, `EUC-JP` and `Shift_JIS` files.
+- It searches `UTF-8`, `EUC-KR`, `EUC-JP` and `Shift_JIS` files.
 - It provides binaries for multi platform (macOS, Windows, Linux).
 
 ### Benchmarks
